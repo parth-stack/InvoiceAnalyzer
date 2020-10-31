@@ -1,0 +1,35 @@
+*{
+    box-sizing: border-box;
+}
+
+.formContainer{
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.wallContainer {
+    background-color: grey;
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+    padding: 20px;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.addButton{
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: auto;
+    height: auto;
+    border:none;
+    background-color: purple;
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}

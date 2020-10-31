@@ -1,0 +1,22 @@
+.brickContainer {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 250px;
+  height: 300px;
+  
+  border: 1px lightgray solid;
+  border-radius: 6px;
+
+  color: lightyellow;
+  background-color: lightslategray;
+    
+  font-size: 20px;
+  font-weight: bold;
+  
+  margin-right: 10px;
+  margin-top: 10px;
+
+}
