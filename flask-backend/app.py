@@ -18,7 +18,7 @@ data = dict()
 data['uploaded'] = 0
 data['invalid'] = 0
 data['vendor'] = 0
-data['amount'] = 10
+data['amount'] = 0
 
 
 def process(df):
@@ -26,12 +26,24 @@ def process(df):
     try:
         df.to_sql(name='invoice', con=db.engine, index=False, if_exists='replace')
         ## validating database columns
-        
+        data['uploaded'] = int(db.engine.execute("SELECT COUNT(*) FROM invoice;").fetchall()[0][0])
+        db.engine.execute('''DELETE FROM invoice WHERE `Invoice Numbers` IN (
+                            SELECT `Invoice Numbers` FROM 
+                            (
+                              SELECT `Invoice Numbers`, COUNT(*) AS CNT
+                              FROM invoice
+                              GROUP BY `Invoice Numbers`
+                              HAVING `CNT`>1
+                            )
+                          );
+        ''')
+        data['invalid'] = data['uploaded'] - int(db.engine.execute("SELECT COUNT(*) FROM invoice;").fetchall()[0][0])
+        data['uploaded'] = int(db.engine.execute("SELECT COUNT(*) FROM invoice;").fetchall()[0][0])
         ## reading directly from database
         df = pd.read_sql(sql="SELECT * from invoice",con=db.engine)
         return df
     except Exception as e:
-        raise e
+        return df
 
 @APP.route('/')
 def index():
@@ -53,10 +65,8 @@ def api():
     global data
     if(request.args.get('query')=='status'):
         try:
-            data['uploaded'] = int(db.engine.execute("SELECT COUNT(*) FROM invoice;").fetchall()[0][0])
-            data['invalid'] = data['uploaded'] - int(db.engine.execute("SELECT COUNT(DISTINCT `Invoice Numbers`) FROM invoice;").fetchall()[0][0])
             data['vendor'] = int(db.engine.execute("SELECT COUNT(DISTINCT `Vendor Code`) FROM invoice").fetchall()[0][0])
-            data['amount'] = 10
+            data['amount'] = int(db.engine.execute("SELECT SUM(`Amt in loc.cur.`) FROM invoice").fetchall()[0][0])
         except Exception as e:
             print('\n Internal Error \n',e)
             data = data.fromkeys(data, 0)
